@@ -8,6 +8,7 @@ Usage:
 """
 import argparse
 import yaml
+from datetime import datetime
 
 from experiment.runner import ExperimentRunner
 
@@ -22,6 +23,8 @@ def main():
                         help='Skip execution, just compare existing outputs')
     parser.add_argument('--no-metrics', action='store_true',
                         help='Skip metric computation (faster, no lpips/torchmetrics needed)')
+    parser.add_argument('--no-timestamp', action='store_true',
+                        help='Write directly to output_root without a timestamp suffix')
     opt = parser.parse_args()
 
     with open(opt.config) as f:
@@ -34,7 +37,14 @@ def main():
     if "seed" in exp_config:
         base_config["seed"] = exp_config["seed"]
 
-    runner = ExperimentRunner(base_config, exp_config["output_root"])
+    # Build output root — append timestamp unless --no-timestamp is set
+    output_root = exp_config["output_root"]
+    if not opt.no_timestamp:
+        ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        output_root = f"{output_root}_{ts}"
+    print(f"Output directory: {output_root}")
+
+    runner = ExperimentRunner(base_config, output_root)
 
     for run_cfg in exp_config["runs"]:
         if opt.runs is None or run_cfg["name"] in opt.runs:

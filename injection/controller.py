@@ -4,16 +4,21 @@ class InjectionController:
     Attached to UNet modules via setattr; queried inside monkey-patched forwards.
     """
 
-    def __init__(self, strategy, total_timesteps):
+    def __init__(self, strategy, total_timesteps=None):
         """
         Args:
             strategy: an InjectionStrategy instance.
             total_timesteps: list/tensor of scheduler timesteps (e.g., 50 values from 981 down to 1).
+                             May be None if timesteps will be set later via PNPControlled.init_pnp().
         """
         self.strategy = strategy
         self.total_timesteps = total_timesteps
-        self.n_steps = len(total_timesteps)
-        self._timestep_to_index = {int(t): i for i, t in enumerate(total_timesteps)}
+        if total_timesteps is not None:
+            self.n_steps = len(total_timesteps)
+            self._timestep_to_index = {int(t): i for i, t in enumerate(total_timesteps)}
+        else:
+            self.n_steps = 0
+            self._timestep_to_index = {}
 
     def get_alpha(self, t, layer_type):
         """

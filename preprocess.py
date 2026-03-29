@@ -38,9 +38,9 @@ class Preprocess(nn.Module):
             print(f'[INFO] using hugging face custom model key: {hf_key}')
             model_key = hf_key
         elif self.sd_version == '2.1':
-            model_key = "stabilityai/stable-diffusion-2-1-base"
+            model_key = "Manojb/stable-diffusion-2-1-base"
         elif self.sd_version == '2.0':
-            model_key = "stabilityai/stable-diffusion-2-base"
+            model_key = "Manojb/stable-diffusion-2-base"
         elif self.sd_version == '1.5':
             model_key = "runwayml/stable-diffusion-v1-5"
         elif self.sd_version == 'depth':
@@ -50,12 +50,12 @@ class Preprocess(nn.Module):
             raise ValueError(f'Stable-diffusion version {self.sd_version} not supported.')
 
         # Create model
-        self.vae = AutoencoderKL.from_pretrained(model_key, subfolder="vae", revision="fp16",
+        self.vae = AutoencoderKL.from_pretrained(model_key, subfolder="vae",
                                                  torch_dtype=torch.float16).to(self.device)
         self.tokenizer = CLIPTokenizer.from_pretrained(model_key, subfolder="tokenizer")
-        self.text_encoder = CLIPTextModel.from_pretrained(model_key, subfolder="text_encoder", revision="fp16",
+        self.text_encoder = CLIPTextModel.from_pretrained(model_key, subfolder="text_encoder",
                                                           torch_dtype=torch.float16).to(self.device)
-        self.unet = UNet2DConditionModel.from_pretrained(model_key, subfolder="unet", revision="fp16",
+        self.unet = UNet2DConditionModel.from_pretrained(model_key, subfolder="unet",
                                                          torch_dtype=torch.float16).to(self.device)
         self.scheduler = DDIMScheduler.from_pretrained(model_key, subfolder="scheduler")
         print(f'[INFO] loaded stable diffusion!')
@@ -169,9 +169,9 @@ class Preprocess(nn.Module):
 def run(opt):
     # timesteps to save
     if opt.sd_version == '2.1':
-        model_key = "stabilityai/stable-diffusion-2-1-base"
+        model_key = "Manojb/stable-diffusion-2-1-base"
     elif opt.sd_version == '2.0':
-        model_key = "stabilityai/stable-diffusion-2-base"
+        model_key = "Manojb/stable-diffusion-2-base"
     elif opt.sd_version == '1.5':
         model_key = "runwayml/stable-diffusion-v1-5"
     elif opt.sd_version == 'depth':

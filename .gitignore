@@ -1,0 +1,95 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+*.so
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Jupyter ────────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Model weights & checkpoints ────────────────────────────────────────────────
+# HuggingFace cache (downloaded SD models are large — keep out of repo)
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.h5
+
+# ── Diffusion pipeline outputs ─────────────────────────────────────────────────
+# Preprocessed noisy latents (regenerable via preprocess.py)
+latents_forward/
+latents_reverse/
+latents/
+
+# Experiment run outputs (images, grids, metrics, alpha histories)
+experiments/
+PNP-results/
+
+# ── Data ───────────────────────────────────────────────────────────────────────
+# Keep the sample data/horse.jpg tracked; ignore anything else added locally
+data/*
+!data/horse.jpg
+!data/.gitkeep
+
+# ── Logs & metrics ─────────────────────────────────────────────────────────────
+*.log
+*.json
+# But keep config files that are part of the repo
+!experiment/configs/**/*.yaml
+!config_pnp.yaml
+
+# ── OS & editor noise ──────────────────────────────────────────────────────────
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+presentation/*
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm / JetBrains
+.idea/
+
+# ── HuggingFace hub cache ──────────────────────────────────────────────────────
+~/.cache/huggingface/
+
+# ── Misc ───────────────────────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.swp
+*~
