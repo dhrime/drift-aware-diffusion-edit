@@ -1,0 +1,59 @@
+base_config: config_pnp.yaml
+output_root: experiments/sweep_001
+seed: 1
+
+runs:
+  # Baseline: no injection at all (pure text-guided generation)
+  - name: no_injection
+    strategy: NoInjection
+
+  # Original PnP: hard replacement with default thresholds
+  - name: baseline_hard
+    strategy: HardInjection
+    params:
+      attn_cutoff: 0.5
+      conv_cutoff: 0.8
+
+  # Constant blend at 70% strength with same timestep windows
+  - name: blended_constant_0.7
+    strategy: BlendedInjection
+    attn_schedule:
+      type: StepSchedule
+      params: {alpha: 0.7, cutoff: 0.5}
+    conv_schedule:
+      type: StepSchedule
+      params: {alpha: 0.7, cutoff: 0.8}
+
+  # Linear decay: full strength at start, zero at cutoff
+  - name: blended_linear_decay
+    strategy: BlendedInjection
+    attn_schedule:
+      type: LinearDecaySchedule
+      params: {start_alpha: 1.0, end_alpha: 0.0, cutoff: 0.5}
+    conv_schedule:
+      type: LinearDecaySchedule
+      params: {start_alpha: 1.0, end_alpha: 0.0, cutoff: 0.8}
+
+  # Cosine decay: smooth falloff
+  - name: blended_cosine_decay
+    strategy: BlendedInjection
+    attn_schedule:
+      type: CosineDecaySchedule
+      params: {start_alpha: 1.0, cutoff: 0.6}
+    conv_schedule:
+      type: CosineDecaySchedule
+      params: {start_alpha: 1.0, cutoff: 0.8}
+
+  # Adaptive PD controller on top of constant 0.8 baseline
+  - name: adaptive_pd
+    strategy: BlendedInjection
+    attn_schedule:
+      type: ConstantSchedule
+      params: {alpha: 0.8}
+    conv_schedule:
+      type: ConstantSchedule
+      params: {alpha: 0.8}
+    adaptive_params:
+      kp: 0.5
+      kd: 0.1
+      target_deviation: 0.1
