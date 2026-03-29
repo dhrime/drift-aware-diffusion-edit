@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+% Compress section spacing to ensure it fits on one page
+\titlespacing*{\section}{0pt}{1.2ex plus 1ex minus .2ex}{0.5ex plus .2ex}
+
+% Remove paragraph indentation and add space between paragraphs for a cleaner block look
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\begin{document}
+
+\begin{center}
+    \Large \textbf{Drift-Aware Trajectory Control for Localized Diffusion Editing} \\[1\baselineskip]
+    \normalsize Ali Özhavala, Edip Emre Dönger, Yiğit Kemal Can, Yüksel Barkın Baydar
+\end{center}
+
+
+
+\section{Introduction and Motivation}
+Text-guided image editing with Latent Diffusion Models (LDMs) \cite{rombach2022high} enables high-quality localized modifications. Recent methods preserve non-edited regions via cross-attention manipulation \cite{hertz2022prompt}, mask guidance \cite{couairon2023diffedit}, or intermediate feature injection \cite{tumanyan2023plug, cao2023masactrl}. 
+
+Despite these advances, \textit{background drift} often occurs during later denoising stages because fixed heuristic injection schedules (e.g., constant or early-only) cannot adapt as small deviations accumulate into unintended shifts. We propose reframing feature injection as a \textit{feedback regulation problem}, dynamically adjusting preservation strength based on a measured background drift signal at each timestep.
+
+\section{Proposed Method and Contribution}
+We introduce \textbf{Drift-Aware Adaptive Injection} for Stable Diffusion v1.5, operating entirely during inference without retraining.
+
+\textbf{Baseline (Static Injection):} Following \cite{tumanyan2023plug}, we extract spatial feature maps from the UNet decoder during a reference and edited denoising trajectory. A softened spatial mask blends these features, injecting reference features into the background to preserve it. Baselines include constant, early-only, and linear decay schedules.
+
+\textbf{Proposed (Adaptive Injection):} Instead of a fixed schedule, we measure background drift at each timestep by computing the divergence between intermediate feature representations of the reference and edited runs in the non-edited region. 
+\begin{itemize}[noitemsep, topsep=2pt, leftmargin=*]
+    \item \textbf{High Drift:} If features diverge, we dynamically increase preservation strength.
+    \item \textbf{Stable Background:} If features align, we reduce intervention to avoid suppressing the edit.
+\end{itemize}
+We apply temporal smoothing to the drift estimate to prevent oscillatory injection. 
+
+\section{Implementation and Evaluation Plan}
+\textbf{Data \& Implementation:} We will curate an evaluation set of $\sim$40 Stable Diffusion-generated base images, paired with target prompts and spatial masks covering object replacements, attribute tweaks, and style changes. Using PyTorch, we will extract and blend paired UNet features with a shared noise seed. 
+
+\textbf{Evaluation Metrics:} Background preservation will be evaluated using \textbf{LPIPS} and \textbf{SSIM} strictly outside the edit mask. Edit fidelity will be measured via \textbf{CLIP similarity} between the edited region crop and the target prompt. 
+
+\textbf{Expected Outcomes:} We hypothesize that static injection degrades background structure late in generation by failing to respond to emerging drift. Our drift-aware approach will better stabilize the background by intervening precisely when deviations arise, maintaining competitive edit fidelity.
+
+\vspace{1em}
+
+\renewcommand{\refname}{\normalsize References}
+\begin{thebibliography}{5}
+\small
+\bibitem{rombach2022high} 
+Rombach, R., Blattmann, A., Lorenz, D., Esser, P., \& Ommer, B. (2022). High-Resolution Image Synthesis with Latent Diffusion Models. \textit{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}.
+
+\bibitem{hertz2022prompt} 
+Hertz, A., Mokady, R., Tenenbaum, J., Aberman, K., Pritch, Y., \& Cohen-Or, D. (2022). Prompt-to-Prompt Image Editing with Cross-Attention Control. \textit{International Conference on Learning Representations (ICLR)}.
+
+\bibitem{couairon2023diffedit} 
+Couairon, G., Verbeek, J., Schwenk, H., \& Cord, M. (2023). DiffEdit: Diffusion-based Semantic Image Editing with Mask Guidance. \textit{International Conference on Learning Representations (ICLR)}.
+
+\bibitem{tumanyan2023plug} 
+Tumanyan, N., Geyer, M., Bagon, S., \& Dekel, T. (2023). Plug-and-Play Diffusion Features for Text-Driven Image-to-Image Translation. \textit{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}.
+
+\bibitem{cao2023masactrl} 
+Cao, M., Wang, X., Qi, Z. X., Shan, Y., Qie, X., \& Hu, Z. (2023). MasaCtrl: Tuning-Free Mutual Self-Attention Control for Consistent Image Synthesis and Editing. \textit{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}.
+\end{thebibliography}
+
+\end{document}
